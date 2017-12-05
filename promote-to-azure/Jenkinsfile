@@ -25,7 +25,7 @@ pipeline {
             def maps = openshift.selector( 'dc', [ app: 'mapit-stage' ] )
             def objs = maps.objects( exportable:true )
             openshift.withCluster('insecure://azure.ck.osecloud.com:8443','') {
-              openshift.withProject('dev'){
+              openshift.withProject('prod'){
                 //maps.delete( '--ignore-not-present' )
                 openshift.create( objs )
                 maps.related( 'pods' ).untilEach {
