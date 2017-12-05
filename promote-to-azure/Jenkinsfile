@@ -7,7 +7,7 @@ pipeline {
     //start stages
     
     
-    stage('Promote Azure') {
+    stage('Tag Azure') {
       steps {
         script {
           openshift.withCluster() {
@@ -17,22 +17,24 @@ pipeline {
       }
     }
     
-    stage('Create Azure') {
-      when {
-        expression {
-          openshift.withCluster() {
-            return !openshift.selector('dc', 'mapit-azure').exists()
-          }
-        }
-      }
+    stage('Promote to Azure') {
       steps {
         script {
-          openshift.withCluster() {
-            openshift.newApp("mapit:azure", "--name=mapit-azure").narrow('svc').expose()
+          def maps = openshift.selector( 'svc,dc', [ app: 'mapit-stage' ] )
+          def objs = maps.objects( exportable:true )
+          openshift.withCluster('https://azure.ck.osecloud.com:8443','') {
+            openshift.withProject('dev'){
+              maps.delete( '--ignore-not-present' )
+              openshift.create( objs )
+              maps.related( 'pods' ).untilEach {
+                   return it.object().status.phase == 'Running'
+              }
+            }
           }
         }
       }
     }
+    
     
  }
  //end of stages 
