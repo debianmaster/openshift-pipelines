@@ -3,26 +3,35 @@ pipeline {
       label 'maven'
   }
   stages {
-    stage('Build App') {
+    //start stages
+    
+    
+    stage('Promote Azure') {
       steps {
-        git 'https://github.com/debianmaster/mapit-spring'
-        sh "mvn install"
+        script {
+          openshift.withCluster() {
+            openshift.tag("mapit:stage", "mapit:azure")
+          }
+        }
       }
     }
-    stage('Create Image Builder') {
+    stage('Create Azure') {
       when {
         expression {
           openshift.withCluster() {
-            return !openshift.selector("bc", "mapit").exists();
+            return !openshift.selector('dc', 'mapit-stage').exists()
           }
         }
       }
       steps {
         script {
           openshift.withCluster() {
-            openshift.newBuild("--name=mapit", "--image-stream=ci-cd/openjdk18:latest", "--binary")
+            openshift.newApp("mapit:azure", "--name=mapit-azure").narrow('svc').expose()
           }
         }
       }
     }
+    
+   //end of stages 
+    
  }
