@@ -5,6 +5,7 @@ pipeline {
   stages {
     stage('Build App') {
       steps {
+        git 'https://raw.githubusercontent.com/debianmaster/mapit-spring'
         sh "mvn install"
       }
     }
