@@ -21,19 +21,19 @@ pipeline {
       steps {
         script {
           openshift.withCluster(){
-          
-          def maps = openshift.selector( 'svc,dc', [ app: 'mapit-stage' ] )
-          def objs = maps.objects( exportable:true )
-          
-            openshift.withCluster('https://azure.ck.osecloud.com:8443','') {
+              
+            def maps = openshift.selector( 'dc', [ app: 'mapit-stage' ] )
+            def objs = maps.objects( exportable:true )
+            openshift.withCluster('insecure://azure.ck.osecloud.com:8443','') {
               openshift.withProject('dev'){
-                maps.delete( '--ignore-not-present' )
+                //maps.delete( '--ignore-not-present' )
                 openshift.create( objs )
                 maps.related( 'pods' ).untilEach {
                      return it.object().status.phase == 'Running'
                 }
               }
             }
+            
           }
           //end of with cluster
         }
