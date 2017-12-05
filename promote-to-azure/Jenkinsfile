@@ -19,7 +19,7 @@ pipeline {
       when {
         expression {
           openshift.withCluster() {
-            return !openshift.selector('dc', 'mapit-stage').exists()
+            return !openshift.selector('dc', 'mapit-azure').exists()
           }
         }
       }
@@ -35,3 +35,4 @@ pipeline {
    //end of stages 
     
  }
+}
