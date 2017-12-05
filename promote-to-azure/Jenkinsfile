@@ -1,3 +1,4 @@
+
 pipeline {
   agent {
       label 'maven'
@@ -15,6 +16,7 @@ pipeline {
         }
       }
     }
+    
     stage('Create Azure') {
       when {
         expression {
@@ -32,7 +34,6 @@ pipeline {
       }
     }
     
-   //end of stages 
-    
  }
+ //end of stages 
 }
