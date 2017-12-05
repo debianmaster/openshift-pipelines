@@ -1,0 +1,28 @@
+pipeline {
+  agent {
+      label 'maven'
+  }
+  stages {
+    stage('Build App') {
+      steps {
+        git 'https://github.com/debianmaster/mapit-spring'
+        sh "mvn install"
+      }
+    }
+    stage('Create Image Builder') {
+      when {
+        expression {
+          openshift.withCluster() {
+            return !openshift.selector("bc", "mapit").exists();
+          }
+        }
+      }
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.newBuild("--name=mapit", "--image-stream=ci-cd/openjdk18:latest", "--binary")
+          }
+        }
+      }
+    }
+ }
